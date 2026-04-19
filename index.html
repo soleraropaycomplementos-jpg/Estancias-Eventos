@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Estancias & Eventos</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:Poppins,sans-serif;
+background:#eef6f6;
+padding-top:60px;
+}
+
+/* NAV */
+nav{
+background:#055160;
+position:fixed;
+top:0;
+width:100%;
+text-align:center;
+padding:14px;
+z-index:1000;
+}
+
+nav a{
+color:white;
+margin:0 12px;
+text-decoration:none;
+font-weight:600;
+}
+
+/* HEADER */
+header{
+height:320px;
+position:relative;
+}
+
+header img.bg{
+width:100%;
+height:100%;
+object-fit:cover;
+filter:brightness(55%);
+}
+
+/* TEXTO HEADER */
+header .texto{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+color:white;
+text-align:center;
+}
+
+header .texto img.logo{
+width:120px;
+margin-bottom:10px;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:20px;
+padding:20px;
+}
+
+/* CARD */
+.card{
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+cursor:pointer;
+}
+
+.card img{
+width:100%;
+height:180px;
+object-fit:cover;
+}
+
+.card-content{
+padding:15px;
+}
+
+/* BOTONES */
+.btn{
+display:block;
+margin-top:10px;
+padding:10px;
+background:#055160;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+width:100%;
+}
+
+/* MODAL */
+.modal{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,0.7);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+.modal.activo{display:flex;}
+
+.box{
+background:white;
+padding:25px;
+border-radius:14px;
+width:95%;
+max-width:800px;
+position:relative;
+}
+
+.close{
+position:absolute;
+top:10px;
+right:15px;
+cursor:pointer;
+font-size:20px;
+}
+
+/* GALERIA */
+.galeria img{
+width:100%;
+border-radius:10px;
+margin-top:10px;
+}
+
+/* INPUTS */
+input{
+padding:8px;
+margin:5px;
+width:90%;
+}
+
+/* WHATSAPP */
+.whatsapp{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+padding:14px 18px;
+border-radius:50px;
+text-decoration:none;
+font-weight:600;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<img class="bg" src="playa.jpg">
+
+<div class="texto">
+
+<!-- LOGO -->
+<img class="logo" src="logo.png">
+
+<h1>Estancias & Eventos</h1>
+<p>Alquiler vacacional premium</p>
+
+</div>
+</header>
+
+<nav>
+<a href="#casas">Viviendas</a>
+<a href="#contacto">Contacto</a>
+</nav>
+
+<!-- CASAS -->
+<section id="casas" class="grid"></section>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="box">
+<span class="close" onclick="closeModal()">✕</span>
+<div id="content"></div>
+</div>
+</div>
+
+<!-- WHATSAPP -->
+<a class="whatsapp" id="wa" target="_blank">WhatsApp Reserva</a>
+
+<script>
+
+/* CASAS */
+const casas=[
+{
+id:1,
+nombre:"Villa Mar Azul",
+precio:120,
+img:"playa.jpg",
+imgs:["playa.jpg","playa.jpg"],
+descripcion:"Villa frente al mar con terraza y piscina."
+},
+{
+id:2,
+nombre:"Apartamento Centro",
+precio:85,
+img:"playa.jpg",
+imgs:["playa.jpg","playa.jpg"],
+descripcion:"Apartamento moderno en pleno centro."
+}
+];
+
+let selected=null;
+
+/* RENDER */
+const cont=document.getElementById("casas");
+
+casas.forEach(c=>{
+cont.innerHTML+=`
+<div class="card" onclick="openHouse(${c.id})">
+<img src="${c.img}">
+<div class="card-content">
+<h3>${c.nombre}</h3>
+<p>${c.precio}€/noche</p>
+</div>
+</div>
+`;
+});
+
+/* ABRIR CASA */
+function openHouse(id){
+
+selected=casas.find(c=>c.id===id);
+
+modal.classList.add("activo");
+
+content.innerHTML=`
+<h2>${selected.nombre}</h2>
+<p>${selected.descripcion}</p>
+<h3>${selected.precio}€/noche</h3>
+
+<div class="galeria">
+${selected.imgs.map(i=>`<img src="${i}">`).join("")}
+</div>
+
+<h3>Reserva</h3>
+
+<input type="date" id="start">
+<input type="date" id="end">
+
+<input placeholder="Nombre" id="name">
+<input placeholder="Teléfono" id="phone">
+
+<button class="btn" onclick="reservar()">Reservar por WhatsApp</button>
+`;
+}
+
+/* RESERVA */
+function reservar(){
+
+let start=document.getElementById("start").value;
+let end=document.getElementById("end").value;
+let name=document.getElementById("name").value;
+let phone=document.getElementById("phone").value;
+
+let dias=Math.ceil((new Date(end)-new Date(start))/(1000*60*60*24));
+if(dias<=0)return;
+
+let total=dias*selected.precio;
+
+let msg=`🏠 Reserva Estancia\n\n`;
+msg+=`Vivienda: ${selected.nombre}\n`;
+msg+=`Cliente: ${name}\n`;
+msg+=`Tel: ${phone}\n`;
+msg+=`Entrada: ${start}\nSalida: ${end}\n`;
+msg+=`Noches: ${dias}\nTotal: ${total}€`;
+
+window.open("https://wa.me/34643319232?text="+encodeURIComponent(msg),"_blank");
+}
+
+/* CERRAR */
+function closeModal(){
+modal.classList.remove("activo");
+}
+
+</script>
+
+</body>
+</html>
